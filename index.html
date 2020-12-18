@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Inventory Management Service</title>
+    <script src="//cdn.jsdelivr.net/npm/pouchdb@7.2.1/dist/pouchdb.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>
+    <!-- <script src="./scripts/scripts.js"></script> -->
+    <script>
+        var app = angular
+            .module("myApp", ["ngRoute"])
+            .run(function ($pouchDB) {
+                $pouchDB.setDatabase("product");
+                //$pouchDB.sync("http://localhost:4984/test-database");
+            })
+            .config(function ($routeProvider) {
+                $routeProvider
+                    .when("/home", {
+                        templateUrl: "templates/home.html",
+                        controller: "homeController",
+                    })
+                    .when("/login", {
+                        templateUrl: "templates/login.html",
+                        controller: "loginController",
+                    })
+                    .when("/product", {
+                        templateUrl: "templates/product.html",
+                        controller: "productController",
+                    })
+                    .when("/createProduct", {
+                        templateUrl: "templates/createProduct.html",
+                        controller: "createProductController",
+                    });
+            })
+            .controller("homeController", function ($scope) {
+                $scope.message = "Home Page";
+            })
+            .controller("loginController", function ($scope) {
+                var login_detail = {
+                    uname: "mohit",
+                    pass: "",
+                };
+                $scope.login_detail = login_detail;
+                $scope.submit_form = function () {
+                    //Check if the login credentials
+                };
+            })
+            .controller("productController", function ($scope, $location, $pouchDB, $q) {
+                $scope.message = "product Page";
+                $scope.createProduct = function () {
+                    $location.path("/createProduct");
+                }
+                $scope.product_detail = [];
+                $pouchDB.getAllDocs().then(function (response) {
+                    console.log(response)
+                    for (var i = 0; i < response.rows.length; i++) {
+                        $scope.product_detail.push({
+                            "Id": response.rows[i].doc._id,
+                            "rev": response.rows[i].doc._rev,
+                            "Cost": response.rows[i].doc.Cost,
+                            "Name": response.rows[i].doc.Name,
+                            "Description": response.rows[i].doc.Description
+                        });
+                    }
+                    $scope.$apply()
+                })
+                $scope.deleteProduct = function (id, rev) {
+                    $pouchDB.delete(id, rev).then(function (res) {
+                        $pouchDB.getAllDocs().then(function (response) {
+                            $scope.product_detail = []
+                            for (var i = 0; i < response.rows.length; i++) {
+                                $scope.product_detail.push({
+                                    "Id": response.rows[i].doc._id,
+                                    "rev": response.rows[i].doc._rev,
+                                    "Cost": response.rows[i].doc.Cost,
+                                    "Name": response.rows[i].doc.Name,
+                                    "Description": response.rows[i].doc.Description
+                                });
+                            }
+                            $scope.$apply()
+                        })
+                    })
+
+                }
+            })
+            .controller("createProductController", function ($scope, fileReader, $pouchDB) {
+                var db = new PouchDB('product');
+                var product_detail = {
+                    name: "",
+                    cost: "",
+                    description: "",
+                };
+                $scope.imageSrc = "";
+                $scope.$on("fileProgress", function (e, progress) {
+                    $scope.progress = progress.loaded / progress.total;
+                });
+                $scope.product_detail = product_detail;
+                $scope.message = "product Page";
+                $scope.saveProduct = function saveProduct() {
+                    var jsonDocument = {
+                        "Name": product_detail.name,
+                        "Cost": product_detail.cost,
+                        "Description": product_detail.description,
+                    }
+                    $pouchDB.save(jsonDocument).then(function (response) {
+                        //$state.go("list");
+                        console.log(response)
+                    }, function (error) {
+                        console.log("ERROR -&gt; " + error);
+                    });
+                    $pouchDB.info().then(function (info) {
+                        console.log(info);
+                    })
+                    $pouchDB.getAllDocs().then(function (response) {
+                        console.log(response)
+                    })
+                }
+            });
+        app.service("$pouchDB", ["$rootScope", "$q", function ($rootScope, $q) {
+
+            var database;
+            var changeListener;
+
+            this.setDatabase = function (databaseName) {
+                database = new PouchDB(databaseName);
+            }
+
+            this.startListening = function () {
+                changeListener = database.changes({
+                    live: true,
+                    include_docs: true
+                }).on("change", function (change) {
+                    if (!change.deleted) {
+                        $rootScope.$broadcast("$pouchDB:change", change);
+                    } else {
+                        $rootScope.$broadcast("$pouchDB:delete", change);
+                    }
+                });
+            }
+
+            this.stopListening = function () {
+                changeListener.cancel();
+            }
+
+            this.sync = function (remoteDatabase) {
+                database.sync(remoteDatabase, {
+                    live: true,
+                    retry: true
+                });
+            }
+
+            this.save = function (jsonDocument) {
+                var deferred = $q.defer();
+                if (!jsonDocument._id) {
+                    database.post(jsonDocument).then(function (response) {
+                        deferred.resolve(response);
+                    }).catch(function (error) {
+                        deferred.reject(error);
+                    });
+                } else {
+                    database.put(jsonDocument).then(function (response) {
+                        deferred.resolve(response);
+                    }).catch(function (error) {
+                        deferred.reject(error);
+                    });
+                }
+                return deferred.promise;
+            }
+            this.info = function () {
+                return database.info();
+            }
+
+            this.delete = function (documentId, documentRevision) {
+                return database.remove(documentId, documentRevision);
+            }
+
+            this.get = function (documentId) {
+                return database.get(documentId);
+            }
+
+            this.getAllDocs = function () {
+                return database.allDocs({
+                    include_docs: true,
+                    attachments: true
+                })
+
+            }
+
+            this.destroy = function () {
+                database.destroy();
+            }
+
+        }]);
+        app.directive("ngFileSelect", function (fileReader, $timeout) {
+            return {
+                scope: {
+                    ngModel: '='
+                },
+                link: function ($scope, el) {
+                    function getFile(file) {
+                        fileReader.readAsDataUrl(file, $scope)
+                            .then(function (result) {
+                                $timeout(function () {
+                                    $scope.ngModel = result;
+                                });
+                            });
+                    }
+
+                    el.bind("change", function (e) {
+                        var file = (e.srcElement || e.target).files[0];
+                        getFile(file);
+                    });
+                }
+            };
+        });
+
+        app.factory("fileReader", function ($q, $log) {
+            var onLoad = function (reader, deferred, scope) {
+                return function () {
+                    scope.$apply(function () {
+                        deferred.resolve(reader.result);
+                    });
+                };
+            };
+
+            var onError = function (reader, deferred, scope) {
+                return function () {
+                    scope.$apply(function () {
+                        deferred.reject(reader.result);
+                    });
+                };
+            };
+
+            var onProgress = function (reader, scope) {
+                return function (event) {
+                    scope.$broadcast("fileProgress", {
+                        total: event.total,
+                        loaded: event.loaded
+                    });
+                };
+            };
+
+            var getReader = function (deferred, scope) {
+                var reader = new FileReader();
+                reader.onload = onLoad(reader, deferred, scope);
+                reader.onerror = onError(reader, deferred, scope);
+                reader.onprogress = onProgress(reader, scope);
+                return reader;
+            };
+
+            var readAsDataURL = function (file, scope) {
+                var deferred = $q.defer();
+
+                var reader = getReader(deferred, scope);
+                reader.readAsDataURL(file);
+
+                return deferred.promise;
+            };
+
+            return {
+                readAsDataUrl: readAsDataURL
+            };
+        });
+    </script>
+
+    <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body>
+    <div ng-app="myApp">
+        <header ng-include="'templates/navbar.html'"></header>
+        <div ng-view></div>
+    </div>
+</body>
+
+</html>

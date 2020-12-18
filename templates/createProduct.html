@@ -1,0 +1,22 @@
+<form class="_container">
+    <h3>Add Products</h3>
+    <div class="form-group">
+        <input type="text" ng-model="product_detail.name" placeholder="Name" class="form-control">
+    </div>
+    <div class="form-group">
+        <input type="textarea" ng-model="product_detail.description" placeholder="Description" class="form-control">
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <input type="text" ng-model="product_detail.cost" placeholder="Cost" class="form-control">
+        </div>
+    </div>
+    <div class="row mt-3">
+        <input type="file" class="form-control" ng-file-select="onFileSelect($files)" ng-model="imageSrc">
+    </div>
+    <div class="form-group mt-2">
+        <div class="row">
+            <button class="btn btn-primary ml-auto" ng-click="saveProduct()">Add Product</button>
+        </div>
+    </div>
+</form>
