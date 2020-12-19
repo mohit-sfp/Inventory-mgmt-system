@@ -16,5 +16,7 @@ Angularjs 1.6.9
 PouchDB 7.2.1
 
 
-Thanks and Regards:
+Thanks and Regards,
+
+
 Developer Team
