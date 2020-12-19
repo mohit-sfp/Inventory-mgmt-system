@@ -1,6 +1,6 @@
 # Inventory-mgmt-system
 
-Run the code with following two steps:
+Run the code on VS Code with following two steps:
 1. npm install
 2. npm start
 
@@ -17,4 +17,6 @@ PouchDB 7.2.1
 
 
 Thanks and Regards,
+
+
 Developer Team
