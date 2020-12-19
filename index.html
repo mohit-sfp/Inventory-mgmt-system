@@ -17,7 +17,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js
 
+
+
+    "></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
@@ -31,17 +35,17 @@
             })
             .config(function ($routeProvider) {
                 $routeProvider
-                    .when("/home", {
-                        templateUrl: "templates/home.html",
-                        controller: "homeController",
+                    // .when("/home", {
+                    //     templateUrl: "templates/home.html",
+                    //     controller: "homeController",
+                    // })
+                    .when("/", {
+                        templateUrl: "templates/product.html",
+                        controller: "productController",
                     })
                     .when("/login", {
                         templateUrl: "templates/login.html",
                         controller: "loginController",
-                    })
-                    .when("/product", {
-                        templateUrl: "templates/product.html",
-                        controller: "productController",
                     })
                     .when("/createProduct", {
                         templateUrl: "templates/createProduct.html",
@@ -81,25 +85,40 @@
                     $scope.$apply()
                 })
                 $scope.deleteProduct = function (id, rev) {
-                    $pouchDB.delete(id, rev).then(function (res) {
-                        $pouchDB.getAllDocs().then(function (response) {
-                            $scope.product_detail = []
-                            for (var i = 0; i < response.rows.length; i++) {
-                                $scope.product_detail.push({
-                                    "Id": response.rows[i].doc._id,
-                                    "rev": response.rows[i].doc._rev,
-                                    "Cost": response.rows[i].doc.Cost,
-                                    "Name": response.rows[i].doc.Name,
-                                    "Description": response.rows[i].doc.Description
-                                });
-                            }
-                            $scope.$apply()
+                    window.swal({
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this!",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    }).then(() => {
+                        $pouchDB.delete(id, rev).then(function (res) {
+                            $pouchDB.getAllDocs().then(function (response) {
+                                $scope.product_detail = []
+                                for (var i = 0; i < response.rows.length; i++) {
+                                    $scope.product_detail.push({
+                                        "Id": response.rows[i].doc._id,
+                                        "rev": response.rows[i].doc._rev,
+                                        "Cost": response.rows[i].doc.Cost,
+                                        "Name": response.rows[i].doc.Name,
+                                        "Description": response.rows[i].doc
+                                            .Description
+                                    });
+                                }
+                                $scope.$apply()
+                            })
+                            window.swal({
+                                type: "success",
+                                title: "Deleted!",
+                                icon: "success",
+                                text: "Successfully deleted",
+                                confirmButtonText: "OK"
+                            })
                         })
                     })
-
                 }
             })
-            .controller("createProductController", function ($scope, fileReader, $pouchDB) {
+            .controller("createProductController", function ($scope, $location, fileReader, $pouchDB) {
                 var db = new PouchDB('product');
                 var product_detail = {
                     name: "",
@@ -119,17 +138,20 @@
                         "Description": product_detail.description,
                     }
                     $pouchDB.save(jsonDocument).then(function (response) {
-                        //$state.go("list");
-                        console.log(response)
+                        window.swal({
+                            title: "Saved",
+                            text: "Saved in database!",
+                            icon: "success",
+                            buttons: true,
+                        }).then(() => {
+                            $location.path("/");
+                            console.log(response)
+                            $scope.$apply()
+                        })
                     }, function (error) {
                         console.log("ERROR -&gt; " + error);
                     });
-                    $pouchDB.info().then(function (info) {
-                        console.log(info);
-                    })
-                    $pouchDB.getAllDocs().then(function (response) {
-                        console.log(response)
-                    })
+
                 }
             });
         app.service("$pouchDB", ["$rootScope", "$q", function ($rootScope, $q) {
