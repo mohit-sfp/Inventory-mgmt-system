@@ -1,8 +1,8 @@
 # Inventory-mgmt-system
 
 ## To install dependencies
-1. npm install
-2. npm install -g gulp-cli
+1. npm install -g gulp-cli
+2. npm install 
 
 ## Available Scripts
 
