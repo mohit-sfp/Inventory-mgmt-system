@@ -1,28 +1,21 @@
 {
-  "name": "test.angular1",
-  "version": "1.0.0",
+  "name": "myapp",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
-  "configurations": [
-    {
-      "name": "Chrome",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceRoot}/src",
-      "runtimeArgs": [
-        "--disable-web-security"
-      ]
-    }
-  ],
-  "dependencies": {
-    "http-server": "^0.12.3"
-  },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "http-server -o"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-route": "^1.5.8",
+    "gulp": "^3.9.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.18.2",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1"
+  }
 }

@@ -1,0 +1,27 @@
+<div>
+    <div class="row">
+        <h2 class="m-4">Product List</h2>
+        <div class="ml-auto p-4">
+            <button ng-click="createProduct()" class="btn btn-success ">Add Items</button>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered _table_size">
+        <thead>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Cost</th>
+            <th>Delete</th>
+            <th>View</th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="product in product_detail">
+                <td>{{product.Name}}</td>
+                <td>{{product.Description}}</td>
+                <td>{{product.Cost}}</td>
+                <td><button ng-click="deleteProduct(product.Id,product.rev)" class="btn btn-danger">Delete</button>
+                </td>
+                <td><button ng-click="viewProduct(product.Id)" class="btn btn-primary">View</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
