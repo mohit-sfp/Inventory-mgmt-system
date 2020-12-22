@@ -35,6 +35,10 @@ angular.module("helloWorldApp").service("$pouchDB", [
       });
     };
 
+    this.destroy = function () {
+      return database.destroy();
+    };
+
     this.save = function (jsonDocument) {
       var deferred = $q.defer();
       if (!jsonDocument._id) {

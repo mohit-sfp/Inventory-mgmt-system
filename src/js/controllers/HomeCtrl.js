@@ -1,7 +1,62 @@
 angular
   .module("helloWorldApp")
-  .run(function ($pouchDB, $location) {
-    $pouchDB.setDatabase("product");
+  .run(function ($pouchDB, $location, $rootScope) {
+    $pouchDB.setDatabase("login");
+    $rootScope.loggedIn =
+      localStorage.getItem("loggedIn") == "true" ? true : false;
+    if ($rootScope.loggedIn) {
+      $pouchDB.setDatabase("product");
+    } else {
+      $pouchDB.setDatabase("login");
+    }
+  })
+  .controller("navController", function ($scope, $rootScope, $location) {
+    $scope.logout = function () {
+      $rootScope.loggedIn = false;
+      localStorage.removeItem("loggedIn");
+      $location.path("/login");
+    };
+  })
+  .controller("loginController", function (
+    $scope,
+    $location,
+    $rootScope,
+    $pouchDB
+  ) {
+    $pouchDB.setDatabase("login");
+    var jsonDocument = {
+      uname: "softp",
+      pass: "12345",
+    };
+    $pouchDB.save(jsonDocument).then(
+      function (response) {},
+      function (error) {}
+    );
+    $scope.login_detail = {
+      uname: "",
+      pass: "",
+    };
+    $scope.submit = function () {
+      $pouchDB.getAllDocs().then(function (response) {
+        if (
+          $scope.login_detail.uname == response.rows[0].doc.uname &&
+          $scope.login_detail.pass == response.rows[0].doc.pass
+        ) {
+          $rootScope.loggedIn = true;
+          $pouchDB.setDatabase("product");
+          localStorage.setItem("loggedIn", "true");
+          $location.path("/");
+          $scope.$evalAsync();
+        } else {
+          window.swal({
+            title: "Error",
+            text: "Wrong Credentials!",
+            icon: "error",
+            buttons: true,
+          });
+        }
+      });
+    };
   })
   .controller("createProductController", function (
     $scope,
