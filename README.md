@@ -1,22 +1,25 @@
 # Inventory-mgmt-system
 
-Run the code on VS Code with following two steps:
+## To install dependencies
 1. npm install
-2. npm start
+2. npm install -g gulp-cli
 
-The Project points that have been completed are:
-1. Product Listing
-2. Product Creation and 
-3. Product deletion
+## Available Scripts
 
+In the project directory, you can run:
 
-#Technologies used :  
+### `gulp start`
 
-Angularjs 1.6.9
-PouchDB 7.2.1
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
 
-Thanks and Regards,
+## Dependencies
+Following are the dependencies used Used
+1. Node: ^12.14.1
+2. angular: ^1.5.8,
+3. angular-route: "^1.5.8",
+4. gulp: "^3.9.1"
 
-
-Developer Team
